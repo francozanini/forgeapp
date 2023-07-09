@@ -69,3 +69,42 @@ export function skillBonus(attribute: number) {
 export function ac(character: Character) {
   return skillBonus(character.attributes.dex) + 10
 }
+
+export function getCharacter(): Character {
+  return {
+    name: 'Barthoz',
+    race: {
+      name: 'goblin',
+      walkingSpeed: 30,
+      darkVision: 60,
+    },
+    clazz: {
+      name: 'artificer',
+      lvl: 2,
+      hitDice: 8,
+    },
+    attributes: {
+      str: 11,
+      dex: 14,
+      con: 14,
+      int: 17,
+      wis: 11,
+      cha: 12,
+    },
+    hp: {
+      total: 19,
+      current: 14,
+      temp: 0,
+    },
+    inspired: false,
+    inventory: [],
+    savingThrowsProficiency: {
+      strength: false,
+      dexterity: false,
+      constitution: true,
+      intelligence: true,
+      wisdom: false,
+      charisma: false,
+    },
+  }
+}

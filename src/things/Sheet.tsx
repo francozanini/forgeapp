@@ -3,30 +3,108 @@ import {
   ac,
   attributesList,
   Character,
+  getCharacter,
   proficiency,
   savingThrowBonus,
   savingThrows,
   skillBonus,
 } from './character.ts'
-import {capitalizeAll, capitalized} from './utils.ts'
+import {capitalizeAll, capitalized, raise} from './utils.ts'
+import {useState} from 'react'
+
+import * as Dialog from '@radix-ui/react-dialog'
+import {DialogClose} from '@radix-ui/react-dialog'
+
+function RouteNavigator({
+  route,
+  text,
+  setRoute,
+}: {
+  route: SheetRoutes
+  text: string
+  setRoute: (route: SheetRoutes) => void
+}) {
+  const routes: SheetRoutes[] = [
+    'abilities',
+    'skills',
+    'actions',
+    'inventory',
+    'spells',
+    'features',
+    'proficiencies',
+  ]
+  const [isOpen, setIsOpen] = useState(false)
+
+  const open = () => setIsOpen(true)
+  const close = () => setIsOpen(false)
+
+  return (
+    <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog.Trigger asChild>
+        <Button
+          onClick={open}
+          className="font-semibold border border-solid p-2 bg-blue-600 text-center mx-auto w-full text-white rounded-md"
+        >
+          {text}
+        </Button>
+      </Dialog.Trigger>
+      <Dialog.Content>
+        <div
+          aria-hidden="true"
+          className="fixed inset-x-0 top-24 z-50 w-full overflow-y-auto overflow-x-hidden md:inset-0 md:h-full"
+          id="defaultModal"
+        >
+          <div className="relative h-full w-full max-w-2xl p-4 md:h-auto mx-auto">
+            <div className="relative rounded-lg bg-white shadow pb-8">
+              <div className="flex items-start justify-between rounded-t border-b p-4">
+                <h3 className="text-xl font-semibold text-gray-900">Routes</h3>
+                <DialogClose asChild>
+                  <Button onClick={close}>X</Button>
+                </DialogClose>
+              </div>
+              <ul className="flex flex-col gap-2 ml-2 w-full">
+                {routes.map(r => (
+                  <li key={r}>
+                    <Button
+                      className={`${
+                        r === route ? 'bg-blue-600' : 'bg-gray-600 '
+                      } font-semibold hover:text-blue-400 py-2 text-white w-full`}
+                      onClick={() => setRoute(r)}
+                    >
+                      {capitalized(r)}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </Dialog.Content>
+    </Dialog.Root>
+  )
+}
 
 export function AbilitiesSavesSenses({
   attributes,
   savingThrowsProficiencies,
   profBonus,
   darkVision,
+  setRoute,
 }: {
   attributes: Character['attributes']
   savingThrowsProficiencies: Character['savingThrowsProficiency']
   profBonus: number
   darkVision: number
+  setRoute: (route: SheetRoutes) => void
 }) {
   return (
     <>
-      <h3 className="text-center font-semibold text-2xl py-2">
-        Abilities, Saves, Senses
-      </h3>
-      <div className="grid grid-cols-3  gap-12 bg-gray-50">
+      <RouteNavigator
+        route={'abilities'}
+        text={'Abilities, Saves, Senses'}
+        setRoute={setRoute}
+      />
+      <div className="grid grid-cols-3 mt-4  gap-12 bg-gray-50">
         {attributesList(attributes).map(attr => (
           <div
             key={attr.name}
@@ -160,54 +238,52 @@ function TopBar({character}: {character: Character}) {
   )
 }
 
-export default function Sheet() {
-  const character: Character = {
-    name: 'Barthoz',
-    race: {
-      name: 'goblin',
-      walkingSpeed: 30,
-      darkVision: 60,
-    },
-    clazz: {
-      name: 'artificer',
-      lvl: 2,
-      hitDice: 8,
-    },
-    attributes: {
-      str: 11,
-      dex: 14,
-      con: 14,
-      int: 17,
-      wis: 11,
-      cha: 12,
-    },
-    hp: {
-      total: 19,
-      current: 14,
-      temp: 0,
-    },
-    inspired: false,
-    inventory: [],
-    savingThrowsProficiency: {
-      strength: false,
-      dexterity: false,
-      constitution: true,
-      intelligence: true,
-      wisdom: false,
-      charisma: false,
-    },
+function SheetOutlet({
+  character,
+  route,
+  setRoute,
+}: {
+  character: Character
+  route: SheetRoutes
+  setRoute: (route: SheetRoutes) => void
+}) {
+  if (route === 'abilities') {
+    return (
+      <AbilitiesSavesSenses
+        setRoute={setRoute}
+        attributes={character.attributes}
+        savingThrowsProficiencies={character.savingThrowsProficiency}
+        profBonus={proficiency(character)}
+        darkVision={character.race.darkVision}
+      />
+    )
   }
+
+  if (route === 'skills') {
+    return <div>Skills</div>
+  }
+
+  return raise('route not supported')
+}
+
+type SheetRoutes =
+  | 'abilities'
+  | 'skills'
+  | 'actions'
+  | 'inventory'
+  | 'spells'
+  | 'features'
+  | 'proficiencies'
+
+export default function Sheet() {
+  const character: Character = getCharacter()
+  const [route, setRoute] = useState<SheetRoutes>('abilities')
 
   return (
     <main className="w-100 px-2 pt-1">
       <TopBar character={character} />
       <section className="mt-4 bg-gray-50">
-        <AbilitiesSavesSenses
-          attributes={character.attributes}
-          savingThrowsProficiencies={character.savingThrowsProficiency}
-          profBonus={proficiency(character)}
-          darkVision={character.race.darkVision}
-        />
+        <SheetOutlet character={character} route={route} setRoute={setRoute} />
       </section>
     </main>
   )
