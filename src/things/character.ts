@@ -20,6 +20,28 @@ export type Character = {
     cha: number
     int: number
   }
+  skillProficiencies: {
+    // give me all dnd 5e skills as keys and booleans as values.
+    // e.g. {acrobatics: true, animalHandling: false, ...}
+    acrobatics: boolean
+    animalHandling: boolean
+    arcana: boolean
+    athletics: boolean
+    deception: boolean
+    history: boolean
+    insight: boolean
+    intimidation: boolean
+    investigation: boolean
+    medicine: boolean
+    nature: boolean
+    perception: boolean
+    performance: boolean
+    persuasion: boolean
+    religion: boolean
+    sleightOfHand: boolean
+    stealth: boolean
+    survival: boolean
+  }
   inspired: boolean
   inventory: any[]
   clazz: {hitDice: number; lvl: number; name: string}
@@ -90,6 +112,26 @@ export function getCharacter(): Character {
       int: 17,
       wis: 11,
       cha: 12,
+    },
+    skillProficiencies: {
+      acrobatics: false,
+      animalHandling: false,
+      arcana: true,
+      athletics: false,
+      deception: false,
+      history: false,
+      insight: false,
+      intimidation: false,
+      investigation: true,
+      medicine: false,
+      nature: false,
+      perception: false,
+      performance: false,
+      persuasion: false,
+      religion: false,
+      sleightOfHand: false,
+      stealth: false,
+      survival: false,
     },
     hp: {
       total: 19,

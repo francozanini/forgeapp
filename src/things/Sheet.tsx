@@ -237,6 +237,65 @@ function TopBar({character}: {character: Character}) {
   )
 }
 
+function skillAttr(name: SkillName): keyof Character['attributes'] {
+  const skillAttrs: Record<string, keyof Character['attributes']> = {
+    athletics: 'str',
+    acrobatics: 'dex',
+    sleightOfHand: 'dex',
+    stealth: 'dex',
+    arcana: 'int',
+    history: 'int',
+    investigation: 'int',
+    nature: 'int',
+    religion: 'int',
+    animalHandling: 'wis',
+    insight: 'wis',
+    medicine: 'wis',
+    perception: 'wis',
+    survival: 'wis',
+    deception: 'cha',
+    intimidation: 'cha',
+    performance: 'cha',
+    persuasion: 'cha',
+  } as const
+
+  return skillAttrs[name]
+}
+
+type SkillName = keyof Character['skillProficiencies']
+
+function skills(
+  attributes: Character['attributes'],
+  skillProficiencies: Character['skillProficiencies'],
+) {
+  return (
+    [
+      'athletics',
+      'acrobatics',
+      'sleightOfHand',
+      'stealth',
+      'arcana',
+      'history',
+      'investigation',
+      'nature',
+      'religion',
+      'animalHandling',
+      'insight',
+      'medicine',
+      'perception',
+      'survival',
+      'deception',
+      'intimidation',
+      'performance',
+      'persuasion',
+    ] as const
+  ).map(name => ({
+    name,
+    isProficient: skillProficiencies[name],
+    points: skillBonus(attributes[skillAttr(name)]),
+  }))
+}
+
 function SheetOutlet({
   character,
   route,
@@ -259,7 +318,44 @@ function SheetOutlet({
   }
 
   if (route === 'skills') {
-    return <div>Skills</div>
+    return (
+      <div>
+        <RouteNavigator route={route} text={'Skills'} setRoute={setRoute} />
+        <table className="w-full">
+          <thead>
+            <tr>
+              <th className="font-semibold uppercase py-2">Prof</th>
+              <th className="font-semibold uppercase py-2">Mod</th>
+              <th className="font-semibold uppercase py-2">Skill</th>
+              <th className="font-semibold uppercase py-2">Bonus</th>
+            </tr>
+          </thead>
+          <tbody>
+            {skills(character.attributes, character.skillProficiencies).map(
+              skill => (
+                <tr
+                  key={skill.name}
+                  className="border-y border-solid text-center font-semibold"
+                >
+                  <td className="text-center py-2">
+                    {skill.isProficient ? (
+                      <span className="text-green-500">✔</span>
+                    ) : (
+                      ''
+                    )}
+                  </td>
+                  <td className="py-2 uppercase">
+                    {capitalized(skillAttr(skill.name))}
+                  </td>
+                  <td className="py-2">{capitalized(skill.name)}</td>
+                  <td className="text-center py-2">+{skill.points}</td>
+                </tr>
+              ),
+            )}
+          </tbody>
+        </table>
+      </div>
+    )
   }
 
   return raise('route not supported')
