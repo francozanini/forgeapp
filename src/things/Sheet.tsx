@@ -1,4 +1,4 @@
-import {Button} from '@i4o/catalystui'
+import {Button, Dialog} from '@i4o/catalystui'
 import {
   ac,
   attributesList,
@@ -11,9 +11,6 @@ import {
 } from './character.ts'
 import {capitalizeAll, capitalized, raise} from './utils.ts'
 import {useState} from 'react'
-
-import * as Dialog from '@radix-ui/react-dialog'
-import {DialogClose} from '@radix-ui/react-dialog'
 
 function RouteNavigator({
   route,
@@ -39,48 +36,50 @@ function RouteNavigator({
   const close = () => setIsOpen(false)
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
-      <Dialog.Trigger asChild>
+    <Dialog
+      isOpen={isOpen}
+      onOpenChange={setIsOpen}
+      title={'whatever'}
+      trigger={
         <Button
           onClick={open}
           className="font-semibold border border-solid p-2 bg-blue-600 text-center mx-auto w-full text-white rounded-md"
         >
           {text}
         </Button>
-      </Dialog.Trigger>
-      <Dialog.Content>
-        <div
-          aria-hidden="true"
-          className="fixed inset-x-0 top-24 z-50 w-full overflow-y-auto overflow-x-hidden md:inset-0 md:h-full"
-          id="defaultModal"
-        >
-          <div className="relative h-full w-full max-w-2xl p-4 md:h-auto mx-auto">
-            <div className="relative rounded-lg bg-white shadow pb-8">
-              <div className="flex items-start justify-between rounded-t border-b p-4">
-                <h3 className="text-xl font-semibold text-gray-900">Routes</h3>
-                <DialogClose asChild>
-                  <Button onClick={close}>X</Button>
-                </DialogClose>
-              </div>
-              <ul className="flex flex-col gap-2 ml-2 w-full">
-                {routes.map(r => (
-                  <li key={r}>
-                    <Button
-                      className={`${
-                        r === route ? 'bg-blue-600' : 'bg-gray-600 '
-                      } font-semibold hover:text-blue-400 py-2 text-white w-full`}
-                      onClick={() => setRoute(r)}
-                    >
-                      {capitalized(r)}
-                    </Button>
-                  </li>
-                ))}
-              </ul>
+      }
+    >
+      <div
+        aria-hidden="true"
+        className="fixed inset-x-0 top-20 z-50 w-full overflow-y-auto overflow-x-hidden md:inset-0 md:h-full"
+        id="defaultModal"
+      >
+        <div className="relative h-full w-full max-w-2xl p-4 md:h-auto mx-auto">
+          <div className="relative rounded-lg bg-white shadow pb-8">
+            <div className="w-full flex justify-between my-4 pt-2 mx-2">
+              <p className="text-lg font-semibold">Routes</p>
+              <Button className="text-2xl mr-1" onClick={close}>
+                X
+              </Button>
             </div>
+            <ul className="flex flex-col gap-2 ml-2 w-full">
+              {routes.map(r => (
+                <li key={r}>
+                  <Button
+                    className={`${
+                      r === route ? 'bg-blue-600' : 'bg-gray-600 '
+                    } font-semibold hover:text-blue-400 py-2 text-white w-full`}
+                    onClick={() => setRoute(r)}
+                  >
+                    {capitalized(r)}
+                  </Button>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-      </Dialog.Content>
-    </Dialog.Root>
+      </div>
+    </Dialog>
   )
 }
 
