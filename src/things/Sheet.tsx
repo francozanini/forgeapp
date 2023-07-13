@@ -4,10 +4,14 @@ import {
   attributesList,
   Character,
   getCharacter,
+  Item,
   proficiency,
   savingThrowBonus,
   savingThrows,
+  skillAttr,
   skillBonus,
+  skills,
+  totalWeight,
 } from './character.ts'
 import {capitalizeAll, capitalized, raise} from './utils.ts'
 import React, {useState} from 'react'
@@ -237,67 +241,147 @@ function TopBar({character}: {character: Character}) {
   )
 }
 
-function skillAttr(name: SkillName): keyof Character['attributes'] {
-  const skillAttrs: Record<string, keyof Character['attributes']> = {
-    athletics: 'str',
-    acrobatics: 'dex',
-    sleightOfHand: 'dex',
-    stealth: 'dex',
-    arcana: 'int',
-    history: 'int',
-    investigation: 'int',
-    nature: 'int',
-    religion: 'int',
-    animalHandling: 'wis',
-    insight: 'wis',
-    medicine: 'wis',
-    perception: 'wis',
-    survival: 'wis',
-    deception: 'cha',
-    intimidation: 'cha',
-    performance: 'cha',
-    persuasion: 'cha',
-  } as const
-
-  return skillAttrs[name]
-}
-
-type SkillName = keyof Character['skillProficiencies']
-
-function skills(
-  attributes: Character['attributes'],
-  skillProficiencies: Character['skillProficiencies'],
-) {
+function Inventory(props: {
+  navigate: (route: SheetRoutes) => void
+  inventory: {
+    equipment: Item[]
+    coins: {cp: number; sp: number; ep: number; gp: number; pp: number}
+  }
+  attributes: {
+    str: number
+    wis: number
+    con: number
+    dex: number
+    cha: number
+    int: number
+  }
+}) {
   return (
-    [
-      'athletics',
-      'acrobatics',
-      'sleightOfHand',
-      'stealth',
-      'arcana',
-      'history',
-      'investigation',
-      'nature',
-      'religion',
-      'animalHandling',
-      'insight',
-      'medicine',
-      'perception',
-      'survival',
-      'deception',
-      'intimidation',
-      'performance',
-      'persuasion',
-    ] as const
-  ).map(name => ({
-    name,
-    isProficient: skillProficiencies[name],
-    points: skillBonus(attributes[skillAttr(name)]),
-  }))
+    <section>
+      <RouteNavigator
+        route={'inventory'}
+        text={'Inventory'}
+        setRoute={props.navigate}
+      />
+      <div className="flex flex-row justify-between mt-4">
+        <div className="flex flex-row justify-between uppercase w-full text-sm font-semibold">
+          <span className="flex flex-col gap-1">
+            <p>Weight Carried</p>
+            {totalWeight(props.inventory)} / {props.attributes.str * 15} lbs
+          </span>
+          <span className="flex flex-col gap-1">
+            <p>Total currency</p>
+            <p className="text-right">{props.inventory.coins.gp} gp</p>
+          </span>
+        </div>
+      </div>
+      <div className="mt-4">
+        <h3 className="uppercase font-bold mb-2">Equipment</h3>
+        <table className="w-full">
+          <thead>
+            <tr className="uppercase text-sm font-semibold ">
+              <th></th>
+              <th>Weight</th>
+              <th>Qty</th>
+              <th>Cost (GP)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {props.inventory.equipment.map(item => (
+              <tr
+                key={item.name}
+                className="text-center font-semibold text-sm border-y border-solid"
+              >
+                <td>
+                  {item.worn === undefined ? (
+                    ''
+                  ) : (
+                    <Button className="w-6 h-6 bg-blue-600 rounded-sm m-auto" />
+                  )}
+                </td>
+                <td className="py-4">{item.name}</td>
+                <td>{item.quantity}</td>
+                <td>{item.cost}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
 }
 
-function totalWeight(inventory: Character['equipment']) {
-  return 0
+function Skills({
+  attributes,
+  navigate,
+  skillProficiencies,
+}: {
+  navigate: (route: SheetRoutes) => void
+  attributes: {
+    str: number
+    wis: number
+    con: number
+    dex: number
+    cha: number
+    int: number
+  }
+  skillProficiencies: {
+    acrobatics: boolean
+    animalHandling: boolean
+    arcana: boolean
+    athletics: boolean
+    deception: boolean
+    history: boolean
+    insight: boolean
+    intimidation: boolean
+    investigation: boolean
+    medicine: boolean
+    nature: boolean
+    perception: boolean
+    performance: boolean
+    persuasion: boolean
+    religion: boolean
+    sleightOfHand: boolean
+    stealth: boolean
+    survival: boolean
+  }
+}) {
+  return (
+    <div>
+      <RouteNavigator route={'skills'} text={'Skills'} setRoute={navigate} />
+      <table className="w-full">
+        <thead>
+          <tr>
+            <th className="font-semibold uppercase py-2">Prof</th>
+            <th className="font-semibold uppercase py-2">Mod</th>
+            <th className="font-semibold uppercase py-2">Skill</th>
+            <th className="font-semibold uppercase py-2">Bonus</th>
+          </tr>
+        </thead>
+        <tbody>
+          {skills(attributes, skillProficiencies).map(skill => (
+            <tr
+              key={skill.name}
+              className="border-y border-solid text-center font-semibold"
+            >
+              <td className="text-center py-2">
+                {skill.isProficient ? (
+                  <span className="text-green-500">✔</span>
+                ) : (
+                  ''
+                )}
+              </td>
+              <td className="py-2 uppercase">
+                {capitalized(skillAttr(skill.name))}
+              </td>
+              <td className="py-2">{capitalized(skill.name)}</td>
+              <td className="text-center py-2">+{skill.points}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
 }
 
 function SheetOutlet({
@@ -323,95 +407,21 @@ function SheetOutlet({
 
   if (route === 'skills') {
     return (
-      <div>
-        <RouteNavigator route={route} text={'Skills'} setRoute={setRoute} />
-        <table className="w-full">
-          <thead>
-            <tr>
-              <th className="font-semibold uppercase py-2">Prof</th>
-              <th className="font-semibold uppercase py-2">Mod</th>
-              <th className="font-semibold uppercase py-2">Skill</th>
-              <th className="font-semibold uppercase py-2">Bonus</th>
-            </tr>
-          </thead>
-          <tbody>
-            {skills(character.attributes, character.skillProficiencies).map(
-              skill => (
-                <tr
-                  key={skill.name}
-                  className="border-y border-solid text-center font-semibold"
-                >
-                  <td className="text-center py-2">
-                    {skill.isProficient ? (
-                      <span className="text-green-500">✔</span>
-                    ) : (
-                      ''
-                    )}
-                  </td>
-                  <td className="py-2 uppercase">
-                    {capitalized(skillAttr(skill.name))}
-                  </td>
-                  <td className="py-2">{capitalized(skill.name)}</td>
-                  <td className="text-center py-2">+{skill.points}</td>
-                </tr>
-              ),
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Skills
+        navigate={setRoute}
+        attributes={character.attributes}
+        skillProficiencies={character.skillProficiencies}
+      />
     )
   }
 
   if (route === 'inventory') {
     return (
-      <section>
-        <RouteNavigator route={route} text={'Inventory'} setRoute={setRoute} />
-        <div className="flex flex-row justify-between mt-4">
-          <div className="flex flex-row justify-between uppercase w-full text-sm font-semibold">
-            <span className="flex flex-col gap-1">
-              <p>Weight Carried</p>
-              {totalWeight(character.inventory)} /{' '}
-              {character.attributes.str * 15} lbs
-            </span>
-            <span className="flex flex-col gap-1">
-              <p>Total currency</p>
-              <p className="text-right">{character.inventory.coins.gp} gp</p>
-            </span>
-          </div>
-        </div>
-        <div className="mt-4">
-          <h3 className="uppercase font-bold mb-2">Equipment</h3>
-          <table className="w-full">
-            <thead>
-              <tr className="uppercase text-sm font-semibold ">
-                <th></th>
-                <th>Weight</th>
-                <th>Qty</th>
-                <th>Cost (GP)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {character.inventory.equipment.map(item => (
-                <tr
-                  key={item.name}
-                  className="text-center font-semibold text-sm border-y border-solid"
-                >
-                  <td>
-                    {item.worn === undefined ? (
-                      ''
-                    ) : (
-                      <Button className="w-6 h-6 bg-blue-600 rounded-sm m-auto" />
-                    )}
-                  </td>
-                  <td className="py-4">{item.name}</td>
-                  <td>{item.quantity}</td>
-                  <td>{item.cost}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <Inventory
+        navigate={setRoute}
+        inventory={character.inventory}
+        attributes={character.attributes}
+      />
     )
   }
 
