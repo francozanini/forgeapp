@@ -10,7 +10,7 @@ import {
   skillBonus,
 } from './character.ts'
 import {capitalizeAll, capitalized, raise} from './utils.ts'
-import {useState} from 'react'
+import React, {useState} from 'react'
 
 function RouteNavigator({
   route,
@@ -296,6 +296,10 @@ function skills(
   }))
 }
 
+function totalWeight(inventory: Character['equipment']) {
+  return 0
+}
+
 function SheetOutlet({
   character,
   route,
@@ -358,6 +362,59 @@ function SheetOutlet({
     )
   }
 
+  if (route === 'inventory') {
+    return (
+      <section>
+        <RouteNavigator route={route} text={'Inventory'} setRoute={setRoute} />
+        <div className="flex flex-row justify-between mt-4">
+          <div className="flex flex-row justify-between uppercase w-full text-sm font-semibold">
+            <span className="flex flex-col gap-1">
+              <p>Weight Carried</p>
+              {totalWeight(character.inventory)} /{' '}
+              {character.attributes.str * 15} lbs
+            </span>
+            <span className="flex flex-col gap-1">
+              <p>Total currency</p>
+              <p className="text-right">{character.inventory.coins.gp} gp</p>
+            </span>
+          </div>
+        </div>
+        <div className="mt-4">
+          <h3 className="uppercase font-bold mb-2">Equipment</h3>
+          <table className="w-full">
+            <thead>
+              <tr className="uppercase text-sm font-semibold ">
+                <th></th>
+                <th>Weight</th>
+                <th>Qty</th>
+                <th>Cost (GP)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {character.inventory.equipment.map(item => (
+                <tr
+                  key={item.name}
+                  className="text-center font-semibold text-sm border-y border-solid"
+                >
+                  <td>
+                    {item.worn === undefined ? (
+                      ''
+                    ) : (
+                      <Button className="w-6 h-6 bg-blue-600 rounded-sm m-auto" />
+                    )}
+                  </td>
+                  <td className="py-4">{item.name}</td>
+                  <td>{item.quantity}</td>
+                  <td>{item.cost}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )
+  }
+
   return raise('route not supported')
 }
 
@@ -372,7 +429,7 @@ type SheetRoutes =
 
 export default function Sheet() {
   const character: Character = getCharacter()
-  const [route, setRoute] = useState<SheetRoutes>('abilities')
+  const [route, setRoute] = React.useState<SheetRoutes>('abilities')
 
   return (
     <main className="w-100 px-2 pt-1">

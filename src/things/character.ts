@@ -1,5 +1,14 @@
 import {raise} from './utils.ts'
 
+type Item = {
+  name: string
+  weight: number
+  quantity: number
+  description: string
+  cost: number
+  worn?: boolean
+}
+
 export type Character = {
   race: {darkVision: number; name: string; walkingSpeed: number}
   name: string
@@ -43,7 +52,16 @@ export type Character = {
     survival: boolean
   }
   inspired: boolean
-  inventory: any[]
+  inventory: {
+    equipment: Item[]
+    coins: {
+      cp: number
+      sp: number
+      ep: number
+      gp: number
+      pp: number
+    }
+  }
   clazz: {hitDice: number; lvl: number; name: string}
 }
 
@@ -139,7 +157,43 @@ export function getCharacter(): Character {
       temp: 0,
     },
     inspired: false,
-    inventory: [],
+    inventory: {
+      equipment: [
+        {
+          name: 'Clothes, common',
+          weight: 3,
+          quantity: 1,
+          description:
+            'A set of common clothes, including a belt, a cap, a cloak, a shirt, a pair of trousers or a skirt, and a pair of shoes.',
+          cost: 0.5,
+        },
+        {
+          name: 'Dagger',
+          weight: 1,
+          quantity: 1,
+          description:
+            'A dagger is a simple weapon in the melee weapon group. It is a small, light, one-handed weapon that deals piercing damage. A dagger is a martial weapon when thrown.',
+          cost: 2,
+          worn: false,
+        },
+        {
+          name: 'Scale mail',
+          weight: 45,
+          quantity: 1,
+          description:
+            'Scale mail is a type of medium armor. It is a set of interlocking metal rings sewn onto leather backing, which is worn over padding. Scale mail is superior to chain mail, but inferior to plate mail. Scale mail is a martial armor, and it requires proficiency with medium armor to wear it without disadvantage.',
+          cost: 50,
+          worn: false,
+        },
+      ],
+      coins: {
+        cp: 0,
+        sp: 0,
+        ep: 0,
+        gp: 0,
+        pp: 0,
+      },
+    },
     savingThrowsProficiency: {
       strength: false,
       dexterity: false,
