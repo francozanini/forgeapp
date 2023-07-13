@@ -9,48 +9,64 @@ export type Item = {
   worn?: boolean
 }
 
-export type Character = {
-  race: {darkVision: number; name: string; walkingSpeed: number}
+export type Attributes = {
+  str: number
+  wis: number
+  con: number
+  dex: number
+  cha: number
+  int: number
+}
+
+export type SkillProficiencies = {
+  acrobatics: boolean
+  animalHandling: boolean
+  arcana: boolean
+  athletics: boolean
+  deception: boolean
+  history: boolean
+  insight: boolean
+  intimidation: boolean
+  investigation: boolean
+  medicine: boolean
+  nature: boolean
+  perception: boolean
+  performance: boolean
+  persuasion: boolean
+  religion: boolean
+  sleightOfHand: boolean
+  stealth: boolean
+  survival: boolean
+}
+
+export type SavingThrowsProficiency = {
+  strength: boolean
+  wisdom: boolean
+  constitution: boolean
+  dexterity: boolean
+  charisma: boolean
+  intelligence: boolean
+}
+
+type Race = {
+  darkVision: number
   name: string
-  hp: {total: number; current: number; temp: number}
-  savingThrowsProficiency: {
-    strength: boolean
-    wisdom: boolean
-    constitution: boolean
-    dexterity: boolean
-    charisma: boolean
-    intelligence: boolean
-  }
-  attributes: {
-    str: number
-    wis: number
-    con: number
-    dex: number
-    cha: number
-    int: number
-  }
-  skillProficiencies: {
-    // give me all dnd 5e skills as keys and booleans as values.
-    // e.g. {acrobatics: true, animalHandling: false, ...}
-    acrobatics: boolean
-    animalHandling: boolean
-    arcana: boolean
-    athletics: boolean
-    deception: boolean
-    history: boolean
-    insight: boolean
-    intimidation: boolean
-    investigation: boolean
-    medicine: boolean
-    nature: boolean
-    perception: boolean
-    performance: boolean
-    persuasion: boolean
-    religion: boolean
-    sleightOfHand: boolean
-    stealth: boolean
-    survival: boolean
-  }
+  walkingSpeed: number
+}
+
+type HPTracking = {
+  total: number
+  current: number
+  temp: number
+}
+
+export type Character = {
+  race: Race
+  name: string
+  hp: HPTracking
+  attributes: Attributes
+  skillProficiencies: SkillProficiencies
+  savingThrowsProficiency: SavingThrowsProficiency
   inspired: boolean
   inventory: {
     equipment: Item[]
@@ -62,10 +78,16 @@ export type Character = {
       pp: number
     }
   }
-  clazz: {hitDice: number; lvl: number; name: string}
+  clazz: Class
 }
 
-export function attributesList(attributes: Character['attributes']) {
+export type Class = {
+  hitDice: number
+  lvl: number
+  name: string
+}
+
+export function attributesList(attributes: Attributes) {
   return [
     {name: 'strength', val: attributes.str},
     {name: 'dexterity', val: attributes.dex},
@@ -77,8 +99,8 @@ export function attributesList(attributes: Character['attributes']) {
 }
 
 export function savingThrows(
-  attributes: Character['attributes'],
-  savingThrowsProficiency: Character['savingThrowsProficiency'],
+  attributes: Attributes,
+  savingThrowsProficiency: SavingThrowsProficiency,
 ) {
   return attributesList(attributes).map(attr => ({
     ...attr,
@@ -230,11 +252,11 @@ export function skillAttr(name: SkillName): keyof Character['attributes'] {
   return skillAttrs[name]
 }
 
-type SkillName = keyof Character['skillProficiencies']
+export type SkillName = keyof Character['skillProficiencies']
 
 export function skills(
-  attributes: Character['attributes'],
-  skillProficiencies: Character['skillProficiencies'],
+  attributes: Attributes,
+  skillProficiencies: SkillProficiencies,
 ) {
   return (
     [

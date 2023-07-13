@@ -1,15 +1,17 @@
 import {Button, Dialog} from '@i4o/catalystui'
 import {
   ac,
+  Attributes,
   attributesList,
   Character,
   getCharacter,
-  Item,
   proficiency,
   savingThrowBonus,
   savingThrows,
+  SavingThrowsProficiency,
   skillAttr,
   skillBonus,
+  SkillProficiencies,
   skills,
   totalWeight,
 } from './character.ts'
@@ -94,8 +96,8 @@ export function AbilitiesSavesSenses({
   darkVision,
   setRoute,
 }: {
-  attributes: Character['attributes']
-  savingThrowsProficiencies: Character['savingThrowsProficiency']
+  attributes: Attributes
+  savingThrowsProficiencies: SavingThrowsProficiency
   profBonus: number
   darkVision: number
   setRoute: (route: SheetRoutes) => void
@@ -243,18 +245,8 @@ function TopBar({character}: {character: Character}) {
 
 function Inventory(props: {
   navigate: (route: SheetRoutes) => void
-  inventory: {
-    equipment: Item[]
-    coins: {cp: number; sp: number; ep: number; gp: number; pp: number}
-  }
-  attributes: {
-    str: number
-    wis: number
-    con: number
-    dex: number
-    cha: number
-    int: number
-  }
+  inventory: Character['inventory']
+  attributes: Attributes
 }) {
   return (
     <section>
@@ -317,34 +309,8 @@ function Skills({
   skillProficiencies,
 }: {
   navigate: (route: SheetRoutes) => void
-  attributes: {
-    str: number
-    wis: number
-    con: number
-    dex: number
-    cha: number
-    int: number
-  }
-  skillProficiencies: {
-    acrobatics: boolean
-    animalHandling: boolean
-    arcana: boolean
-    athletics: boolean
-    deception: boolean
-    history: boolean
-    insight: boolean
-    intimidation: boolean
-    investigation: boolean
-    medicine: boolean
-    nature: boolean
-    perception: boolean
-    performance: boolean
-    persuasion: boolean
-    religion: boolean
-    sleightOfHand: boolean
-    stealth: boolean
-    survival: boolean
-  }
+  attributes: Attributes
+  skillProficiencies: SkillProficiencies
 }) {
   return (
     <div>
