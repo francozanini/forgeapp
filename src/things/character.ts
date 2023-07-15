@@ -60,6 +60,17 @@ type HPTracking = {
   temp: number
 }
 
+type Inventory = {
+  equipment: Item[]
+  coins: {
+    cp: number
+    sp: number
+    ep: number
+    gp: number
+    pp: number
+  }
+}
+
 export type Character = {
   race: Race
   name: string
@@ -68,16 +79,7 @@ export type Character = {
   skillProficiencies: SkillProficiencies
   savingThrowsProficiency: SavingThrowsProficiency
   inspired: boolean
-  inventory: {
-    equipment: Item[]
-    coins: {
-      cp: number
-      sp: number
-      ep: number
-      gp: number
-      pp: number
-    }
-  }
+  inventory: Inventory
   clazz: Class
 }
 
@@ -286,6 +288,7 @@ export function skills(
   }))
 }
 
-export function totalWeight(inventory: Character['equipment']) {
+// @ts-ignore
+export function totalWeight(inventory: Inventory) {
   return 0
 }

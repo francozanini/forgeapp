@@ -4,7 +4,7 @@ import {
   Attributes,
   attributesList,
   Character,
-  getCharacter,
+  Item,
   proficiency,
   savingThrowBonus,
   savingThrows,
@@ -17,6 +17,8 @@ import {
 } from './character.ts'
 import {capitalizeAll, capitalized, raise} from './utils.ts'
 import React, {useState} from 'react'
+import {updateItem, useCharacter, useItemUpdate} from './api.ts'
+import {useMutation, useQueryClient} from 'react-query'
 
 function RouteNavigator({
   route,
@@ -45,7 +47,7 @@ function RouteNavigator({
     <Dialog
       isOpen={isOpen}
       onOpenChange={setIsOpen}
-      title={'whatever'}
+      title={''}
       trigger={
         <Button
           onClick={open}
@@ -248,6 +250,31 @@ function Inventory(props: {
   inventory: Character['inventory']
   attributes: Attributes
 }) {
+  const queryClient = useQueryClient()
+  const {mutate: toggleItem} = useMutation('updateItem', updateItem, {
+    onMutate: async updatedItem => {
+      const previousCharacter = queryClient.getQueryData(['character'])
+
+      queryClient.setQueryData(
+        ['character'],
+        (toUpdate: Character | undefined) => {
+          if (!toUpdate) raise('Character not found')
+
+          const equipment = toUpdate.inventory.equipment.map(item =>
+            item.name === updatedItem.name ? updatedItem : item,
+          )
+          return {
+            ...toUpdate,
+            inventory: {...toUpdate.inventory, equipment},
+          } as Character
+        },
+      )
+
+      return {previousCharacter}
+    },
+    onSettled: () => queryClient.invalidateQueries(['character']),
+  })
+
   return (
     <section>
       <RouteNavigator
@@ -288,7 +315,12 @@ function Inventory(props: {
                   {item.worn === undefined ? (
                     ''
                   ) : (
-                    <Button className="w-6 h-6 bg-blue-600 rounded-sm m-auto" />
+                    <Button
+                      className={`w-6 h-6 bg-white  border-solid  border-blue-600 rounded-sm m-auto ${
+                        item.worn ? 'border-8' : 'border-2 border-gray-400'
+                      }`}
+                      onClick={() => toggleItem(item)}
+                    />
                   )}
                 </td>
                 <td className="py-4">{item.name}</td>
@@ -404,8 +436,10 @@ type SheetRoutes =
   | 'proficiencies'
 
 export default function Sheet() {
-  const character: Character = getCharacter()
+  const {data: character} = useCharacter()
   const [route, setRoute] = React.useState<SheetRoutes>('abilities')
+
+  if (!character) return <div>Loading...</div>
 
   return (
     <main className="w-100 px-2 pt-1">
