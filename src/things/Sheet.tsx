@@ -300,7 +300,7 @@ function Inventory(props: {
           <thead>
             <tr className="uppercase text-sm font-semibold ">
               <th></th>
-              <th>Weight</th>
+              <th className="text-left">Weight</th>
               <th>Qty</th>
               <th>Cost (GP)</th>
             </tr>
@@ -311,7 +311,7 @@ function Inventory(props: {
                 key={item.name}
                 className="text-center font-semibold text-sm border-y border-solid"
               >
-                <td>
+                <td className="align-middle">
                   {item.worn === undefined ? (
                     ''
                   ) : (
@@ -323,9 +323,18 @@ function Inventory(props: {
                     />
                   )}
                 </td>
-                <td className="py-4">{item.name}</td>
-                <td>{item.quantity}</td>
-                <td>{item.cost}</td>
+                <td className="py-2 text-left">
+                  <p className="text-lg font-bold">{item.name}</p>
+                  <p className="font-medium text-sm">
+                    {capitalized(item.type)}{' '}
+                    {item.subtype ? capitalized(item.subtype) : ''}
+                  </p>
+                  <p>
+                    <span className="font-bold">{item.weight}</span> lb
+                  </p>
+                </td>
+                <td className="align-middle">{item.quantity}</td>
+                <td className="align-middle">{item.cost}</td>
               </tr>
             ))}
           </tbody>

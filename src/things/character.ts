@@ -7,6 +7,24 @@ export type Item = {
   description: string
   cost: number
   worn?: boolean
+  type: 'gear' | 'weapon' | 'armor' | 'tool' | 'consumable' | 'loot'
+  subtype?:
+    | 'simple'
+    | 'martial'
+    | 'light'
+    | 'medium'
+    | 'heavy'
+    | 'shield'
+    | 'ammunition'
+    | 'finesse'
+    | 'thrown'
+    | 'two-handed'
+    | 'versatile'
+    | 'improvised'
+    | 'natural'
+    | 'siege'
+    | 'special'
+    | 'adventuring gear'
 }
 
 export type Attributes = {
@@ -190,6 +208,8 @@ export function getCharacter(): Character {
           description:
             'A set of common clothes, including a belt, a cap, a cloak, a shirt, a pair of trousers or a skirt, and a pair of shoes.',
           cost: 0.5,
+          type: 'gear',
+          subtype: 'adventuring gear',
         },
         {
           name: 'Dagger',
@@ -199,6 +219,8 @@ export function getCharacter(): Character {
             'A dagger is a simple weapon in the melee weapon group. It is a small, light, one-handed weapon that deals piercing damage. A dagger is a martial weapon when thrown.',
           cost: 2,
           worn: false,
+          type: 'weapon',
+          subtype: 'simple',
         },
         {
           name: 'Scale mail',
@@ -208,6 +230,8 @@ export function getCharacter(): Character {
             'Scale mail is a type of medium armor. It is a set of interlocking metal rings sewn onto leather backing, which is worn over padding. Scale mail is superior to chain mail, but inferior to plate mail. Scale mail is a martial armor, and it requires proficiency with medium armor to wear it without disadvantage.',
           cost: 50,
           worn: false,
+          type: 'armor',
+          subtype: 'medium',
         },
       ],
       coins: {
