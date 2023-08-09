@@ -4,6 +4,7 @@ import {
   Attributes,
   attributesList,
   Character,
+  GeneralProficiencies,
   proficiency,
   savingThrowBonus,
   savingThrows,
@@ -365,6 +366,46 @@ function Skills({
   )
 }
 
+function Proficiency(props: {text: string; title: string}) {
+  return (
+    <div className="py-3 px-1 border-b border-solid border-black flex flex-col gap-1">
+      <p className="font-bold">{props.title}</p>
+      <p>{props.text}</p>
+    </div>
+  )
+}
+
+function Proficiencies(props: {
+  navigate: (route: SheetRoutes) => void
+  proficiencies: GeneralProficiencies
+}) {
+  return (
+    <section>
+      <RouteNavigator
+        route={'proficiencies'}
+        text={'Proficiencies'}
+        setRoute={props.navigate}
+      />
+      <Proficiency
+        title={'Armor'}
+        text={props.proficiencies.armor.map(capitalized).join(' Armor, ')}
+      />
+      <Proficiency
+        title={'Weapons'}
+        text={props.proficiencies.weapons.map(capitalized).join(', ')}
+      />
+      <Proficiency
+        title={'Tools'}
+        text={props.proficiencies.tools.join(', ')}
+      />
+      <Proficiency
+        title={'Languages'}
+        text={props.proficiencies.languages.join(', ')}
+      />
+    </section>
+  )
+}
+
 function SheetOutlet({
   character,
   route,
@@ -402,6 +443,15 @@ function SheetOutlet({
         navigate={setRoute}
         inventory={character.inventory}
         attributes={character.attributes}
+      />
+    )
+  }
+
+  if (route === 'proficiencies') {
+    return (
+      <Proficiencies
+        navigate={setRoute}
+        proficiencies={character.generalProficiencies}
       />
     )
   }

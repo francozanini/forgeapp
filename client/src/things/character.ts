@@ -9,23 +9,31 @@ export type Item = {
   worn?: boolean
   type: 'gear' | 'weapon' | 'armor' | 'tool' | 'consumable' | 'loot'
   subtype?:
-    | 'simple'
-    | 'martial'
-    | 'light'
-    | 'medium'
-    | 'heavy'
-    | 'shield'
-    | 'ammunition'
-    | 'finesse'
-    | 'thrown'
-    | 'two-handed'
-    | 'versatile'
-    | 'improvised'
-    | 'natural'
-    | 'siege'
-    | 'special'
-    | 'adventuring gear'
+    | (
+        | 'ammunition'
+        | 'finesse'
+        | 'thrown'
+        | 'two-handed'
+        | 'versatile'
+        | 'improvised'
+        | 'natural'
+        | 'siege'
+        | 'special'
+        | 'adventuring gear'
+      )
+    | ArmorType
+    | WeaponType
 }
+
+type ArmorType = 'light' | 'medium' | 'heavy' | 'shield'
+type WeaponType = 'simple' | 'firearms' | 'martial'
+type Tools =
+  | "Alchemist's supplies"
+  | 'Disguise Kit'
+  | "Smith's Tools"
+  | 'Thieves Tools'
+  | "Tinker's Tools"
+type Language = 'Common' | 'Goblin'
 
 export type Attributes = {
   str: number
@@ -96,9 +104,17 @@ export type Character = {
   attributes: Attributes
   skillProficiencies: SkillProficiencies
   savingThrowsProficiency: SavingThrowsProficiency
+  generalProficiencies: GeneralProficiencies
   inspired: boolean
   inventory: Inventory
   clazz: Class
+}
+
+export type GeneralProficiencies = {
+  armor: ArmorType[]
+  weapons: WeaponType[]
+  tools: Tools[]
+  languages: Language[]
 }
 
 export type Class = {
@@ -192,6 +208,18 @@ export function getCharacter(): Character {
       sleightOfHand: false,
       stealth: false,
       survival: false,
+    },
+    generalProficiencies: {
+      languages: ['Common', 'Goblin'],
+      tools: [
+        "Alchemist's supplies",
+        'Disguise Kit',
+        "Smith's Tools",
+        'Thieves Tools',
+        "Tinker's Tools",
+      ],
+      weapons: ['simple', 'firearms'],
+      armor: ['light', 'medium', 'shield'],
     },
     hp: {
       total: 19,
