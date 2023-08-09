@@ -4,7 +4,6 @@ import {
   Attributes,
   attributesList,
   Character,
-  Item,
   proficiency,
   savingThrowBonus,
   savingThrows,
@@ -17,8 +16,7 @@ import {
 } from './character.ts'
 import {capitalizeAll, capitalized, raise} from './utils.ts'
 import React, {useState} from 'react'
-import {updateItem, useCharacter, useItemUpdate} from './api.ts'
-import {useMutation, useQueryClient} from 'react-query'
+import {useCharacter, useUpdateItem} from './api.ts'
 
 function RouteNavigator({
   route,
@@ -250,31 +248,7 @@ function Inventory(props: {
   inventory: Character['inventory']
   attributes: Attributes
 }) {
-  const queryClient = useQueryClient()
-  const {mutate: toggleItem} = useMutation('updateItem', updateItem, {
-    onMutate: async updatedItem => {
-      const previousCharacter = queryClient.getQueryData(['character'])
-
-      queryClient.setQueryData(
-        ['character'],
-        (toUpdate: Character | undefined) => {
-          if (!toUpdate) raise('Character not found')
-
-          const equipment = toUpdate.inventory.equipment.map(item =>
-            item.name === updatedItem.name ? updatedItem : item,
-          )
-          return {
-            ...toUpdate,
-            inventory: {...toUpdate.inventory, equipment},
-          } as Character
-        },
-      )
-
-      return {previousCharacter}
-    },
-    onSettled: () => queryClient.invalidateQueries(['character']),
-  })
-
+  const {mutate: toggleItem} = useUpdateItem()
   return (
     <section>
       <RouteNavigator
