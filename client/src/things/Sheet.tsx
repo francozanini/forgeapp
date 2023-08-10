@@ -4,6 +4,7 @@ import {
   Attributes,
   attributesList,
   Character,
+  clazzModifier,
   GeneralProficiencies,
   proficiency,
   savingThrowBonus,
@@ -13,6 +14,7 @@ import {
   skillBonus,
   SkillProficiencies,
   skills,
+  spellAttack,
   totalWeight,
 } from './character.ts'
 import {capitalizeAll, capitalized, raise} from './utils.ts'
@@ -406,6 +408,43 @@ function Proficiencies(props: {
   )
 }
 
+function Spells({
+  navigate,
+  character,
+}: {
+  navigate: (route: SheetRoutes) => void
+  character: Character
+}) {
+  return (
+    <section>
+      <RouteNavigator route={'spells'} text={'Spells'} setRoute={navigate} />
+      <div className="flex flex-row justify-around mt-4">
+        <div className="flex flex-col">
+          <p className="text-lg font-bold text-center">
+            +{clazzModifier(character)}
+          </p>
+          <p className="font-bold uppercase text-xs text-center">Modifier</p>
+        </div>
+        <div className="flex flex-col">
+          <p className="text-lg font-bold text-center">
+            +{spellAttack(character)}
+          </p>
+          <p className="font-bold uppercase text-xs text-center">
+            Spell Attack
+          </p>
+        </div>
+        <div className="flex flex-col">
+          <p className="text-lg font-bold text-center">
+            +{clazzModifier(character)}
+          </p>
+          <p className="font-bold uppercase text-xs text-center">Save DC</p>
+        </div>
+      </div>
+      <div className="mt-4">{}</div>
+    </section>
+  )
+}
+
 function SheetOutlet({
   character,
   route,
@@ -454,6 +493,10 @@ function SheetOutlet({
         proficiencies={character.generalProficiencies}
       />
     )
+  }
+
+  if (route === 'spells') {
+    return <Spells navigate={setRoute} character={character} />
   }
 
   return raise('route not supported')

@@ -74,6 +74,27 @@ export type SavingThrowsProficiency = {
   intelligence: boolean
 }
 
+type Spell = {
+  name: string
+  time: string
+  range: 'self' | 'touch' | '60ft'
+  hitDc?: AttributeName
+  effect: string
+  concentration: boolean
+  ritual: boolean
+  origin: Class['name']
+  lvl: SpellLevel
+}
+
+type SpellBook = {
+  slots: SpellSlots
+  spells: Spell[]
+}
+
+type SpellSlots = Record<SpellLevel, {total: number; used: number}>
+
+type SpellLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
 type Race = {
   darkVision: number
   name: string
@@ -108,6 +129,7 @@ export type Character = {
   inspired: boolean
   inventory: Inventory
   clazz: Class
+  spellBook?: SpellBook
 }
 
 export type GeneralProficiencies = {
@@ -121,6 +143,7 @@ export type Class = {
   hitDice: number
   lvl: number
   name: string
+  castingModifier?: AttributeName
 }
 
 export function attributesList(attributes: Attributes) {
@@ -171,6 +194,33 @@ export function ac(character: Character) {
 export function getCharacter(): Character {
   return {
     name: 'Barthoz',
+    spellBook: {
+      slots: {
+        '1': {total: 2, used: 1},
+      },
+      spells: [
+        {
+          name: 'booming blade',
+          concentration: false,
+          time: '1a',
+          range: 'self',
+          lvl: 0,
+          origin: 'artificer',
+          ritual: false,
+          effect: '',
+        },
+        {
+          name: 'Absorb Elements',
+          concentration: false,
+          time: '1r',
+          range: 'self',
+          lvl: 0,
+          origin: 'artificer',
+          ritual: false,
+          effect: '1d6',
+        },
+      ],
+    },
     race: {
       name: 'goblin',
       walkingSpeed: 30,
@@ -180,6 +230,7 @@ export function getCharacter(): Character {
       name: 'artificer',
       lvl: 2,
       hitDice: 8,
+      castingModifier: 'int',
     },
     attributes: {
       str: 11,
@@ -281,8 +332,10 @@ export function getCharacter(): Character {
   }
 }
 
-export function skillAttr(name: SkillName): keyof Character['attributes'] {
-  const skillAttrs: Record<string, keyof Character['attributes']> = {
+type AttributeName = keyof Character['attributes']
+
+export function skillAttr(name: SkillName): AttributeName {
+  const skillAttrs: Record<string, AttributeName> = {
     athletics: 'str',
     acrobatics: 'dex',
     sleightOfHand: 'dex',
@@ -343,4 +396,17 @@ export function skills(
 // @ts-ignore
 export function totalWeight(inventory: Inventory) {
   return 0
+}
+
+export function spellAttack(character: Character) {
+  return character.clazz.castingModifier
+    ? proficiency(character) +
+        skillBonus(character.attributes[character.clazz.castingModifier])
+    : 0
+}
+
+export function clazzModifier(character: Character) {
+  return character.clazz.castingModifier
+    ? skillBonus(character.attributes[character.clazz.castingModifier])
+    : 0
 }
